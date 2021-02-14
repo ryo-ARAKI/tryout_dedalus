@@ -136,3 +136,4 @@ tutorial/fig
 
 # Ignore .h5 files saved by analysis
 tutorial/analysis
+tutorial/analysis_tasks
