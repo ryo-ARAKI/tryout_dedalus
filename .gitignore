@@ -130,3 +130,6 @@ dmypy.json
 
 # Ignore figures
 tutorial/fig
+
+# Ignore VSCode configurations
+.vscode
