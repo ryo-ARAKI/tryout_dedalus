@@ -51,3 +51,65 @@ problem.add_equation("ux - dx(u) = 0")  # Define first-order spatial derivative
 # Dirichlet b.c. for both ends
 problem.add_equation("left(u) = 0")
 problem.add_equation("right(u) = 0")
+
+
+# Building a solver
+solver = problem.build_solver(
+    'RK222'  # 2nd-order 2-stage Diagonally Implicit Runge–Kutta (DIRK) + Explicit Runge–Kutta ERK scheme
+)
+
+
+# Setting stop criteria
+solver.stop_sim_time = 500
+solver.stop_wall_time = np.inf
+solver.stop_iteration = np.inf
+
+
+# Setting initial conditions
+# Reference local grid and state fields
+x = domain.grid(0)
+u = solver.state['u']
+ux = solver.state['ux']
+
+# Setup a sine wave
+u.set_scales(1)
+u['g'] = 1e-3 * np.sin(5 * np.pi * x / 300)
+u.differentiate('x', out=ux)
+
+
+# Solving/iterating a problem
+# Setup storage
+u.set_scales(1)
+u_list = [np.copy(u['g'])]
+t_list = [solver.sim_time]
+
+# Main loop
+dt = 0.05
+while solver.ok:
+    solver.step(dt)
+    if solver.iteration % 10 == 0:
+        u.set_scales(1)
+        u_list.append(np.copy(u['g']))
+        t_list.append(solver.sim_time)
+    if solver.iteration % 1000 == 0:
+        print('Completed iteration {}'.format(solver.iteration))
+
+# Convert storage lists to arrays
+t_array = np.array(t_list)
+u_array = np.array(u_list)
+
+
+# Plot solution
+plt.close()
+plt.figure(figsize=(6, 7), dpi=100)
+plt.pcolormesh(
+    x, t_array, np.abs(u_array),
+    cmap=plt.get_cmap('plasma'),
+    shading='nearest'
+)
+plt.colorbar()
+plt.xlabel('x')
+plt.ylabel('t')
+plt.title('Hole-defect chaos in the CGLE: |u|')
+plt.tight_layout()
+plt.savefig("fig/Hole-defect_chaos_in_the_CGLE_u.png")
