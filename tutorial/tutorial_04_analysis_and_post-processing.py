@@ -40,3 +40,28 @@ ux = solver.state['ux']
 u.set_scales(1)
 u['g'] = 1e-3 * np.sin(5 * np.pi * x / 300)
 u.differentiate('x', out=ux)
+
+
+# Analysis handlers
+analysis = solver.evaluator.add_file_handler(
+    'analysis',  # Output directory name
+    iter=10,  # Interval to conduct the analysis
+    max_writes=200  # number of writes in each "sets" of divided file handler
+)
+
+
+# Analysis tasks
+analysis.add_task(
+    "integ(sqrt(mag_sq(u)), 'x') / 300",  # Operation
+    layout='g',  # Conducted in grid space?
+    name='<|u|>'
+)
+
+analysis.add_system(solver.state, layout='g')
+
+# Main loop
+dt = 0.05
+while solver.ok:
+    solver.step(dt)
+    if solver.iteration % 1000 == 0:
+        print('Completed iteration {}'.format(solver.iteration))
