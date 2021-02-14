@@ -15,3 +15,7 @@ xbasis = de.Fourier('x', 64, interval=(-np.pi, np.pi), dealias=3/2)
 ybasis = de.Chebyshev('y', 64, interval=(-1, 1), dealias=3/2)
 domain = de.Domain([xbasis, ybasis], grid_dtype=np.float64)
 f = de.Field(domain, name='f')
+
+"""
+To Be Added the rest of the content in the tutorial after resolving the error with 'Field' attribute
+"""
