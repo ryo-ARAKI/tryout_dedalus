@@ -49,3 +49,41 @@ plt.title('Compound Chebyshev grid')
 plt.gca().yaxis.set_ticks([]);
 plt.tight_layout()
 plt.savefig("fig/Compound_Chebyshev_grid.png")
+
+
+# Creating a domain
+xbasis = de.Fourier('x', 32, interval=(0, 2), dealias=3/2)  # Periodic
+ybasis = de.Fourier('y', 32, interval=(0, 2), dealias=3/2)
+zbasis = de.Chebyshev('z', 32, interval=(0, 1), dealias=3/2)  # Non-periodic
+domain = de.Domain([xbasis, ybasis, zbasis], grid_dtype=np.complex128)
+
+
+# Leyouts
+for layout in domain.distributor.layouts:
+    print('Layout {}: Grid scape: {} Local:{}'.format(layout.index, layout.grid_space, layout.local))
+
+
+# These manipulations may break things
+domain.distributor.mesh = np.array([4, 2])
+domain.distributor.coords = np.array([0, 0])
+domain.distributor._build_layouts(domain, dry_run=True)
+
+for layout in domain.distributor.layouts:
+    print('Layout {}: Grid scape: {} Local:{}'.format(layout.index, layout.grid_space, layout.local))
+
+
+# Distributed grid and element arrays
+local_x = domain.grid(0, scales=1)  # Full Fourier grid for the x-basis, same for all processes
+local_y = domain.grid(1, scales=1)  # Distributed across processes
+local_z = domain.grid(2, scales=1)
+print('Local x shape:', local_x.shape)
+print('Local y shape:', local_y.shape)
+print('Local z shape:', local_z.shape)
+
+
+local_kx = domain.elements(0)  # Local x wavenumbers
+local_ky = domain.elements(1)
+local_nz = domain.elements(2)  # Full set of Chebyshev modes
+print('Local kx shape:', local_kx.shape)
+print('Local ky shape:', local_ky.shape)
+print('Local nz shape:', local_nz.shape)
