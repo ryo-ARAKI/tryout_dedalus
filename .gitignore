@@ -133,3 +133,6 @@ tutorial/fig
 
 # Ignore VSCode configurations
 .vscode
+
+# Ignore .h5 files saved by analysis
+tutorial/analysis
